@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}تحويل المكاتبة{% endblock %}
+
+{% block page_title %}🔄 تحويل المكاتبة{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-md-6">
+
+        <div class="card shadow-sm p-4">
+
+            <h5 class="mb-3 text-center">اختيار المكاتب للتحويل</h5>
+
+            <form method="POST">
+
+                <label class="form-label">اختر المكتب/المكاتب</label>
+
+                <!-- اختيار متعدد -->
+                <select name="to_offices" multiple class="form-control" size="6">
+
+                    {% for o in offices %}
+                        <option value="{{ o[0] }}">
+                            {{ o[1] }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+
+                <small class="text-muted">
+                    يمكنك اختيار أكثر من مكتب (اضغط Ctrl أو Cmd)
+                </small>
+
+                <br><br>
+
+                <div class="d-flex justify-content-between">
+
+                    <a href="/letters" class="btn btn-secondary">
+                        ⬅ رجوع
+                    </a>
+
+                    <button type="submit" class="btn btn-success">
+                        🔄 تحويل
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

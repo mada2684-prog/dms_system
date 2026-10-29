@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ar" direction="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام المراسلات | شركة شمال القاهرة لتوزيع الكهرباء</title>
+    <style>
+        /* 🔥 الألوان الديناميكية المرنة للمنظومة لعام ٢٠٢٦ */
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-primary: #ffffff;
+            --text-muted: #94a3b8;
+            --input-bg: #0f172a;
+            --nav-hover: #1e293b;
+            --sidebar-bg: #0f172a;
+            --topbar-bg: #1e293b;
+        }
+
+        /* ☀️ الألوان المخصصة للوضع الفاتح الفخم عند تبديله */
+        [data-theme="light"] {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-muted: #64748b;
+            --input-bg: #f1f5f9;
+            --nav-hover: #e2e8f0;
+            --sidebar-bg: #ffffff;
+            --topbar-bg: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        
+        body { 
+            background-color: var(--bg-main) !important; 
+            color: var(--text-primary) !important; 
+            display: flex; 
+            min-height: 100vh; 
+            direction: rtl;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* القائمة الجانبية المعززة بالمتغيرات */
+        aside { 
+            width: 260px; 
+            background: var(--sidebar-bg); 
+            border-left: 1px solid var(--border-color); 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column;
+            transition: background 0.3s, border 0.3s;
+        }
+
+        .brand-section { text-align: center; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+        .brand-title { color: var(--text-primary); font-size: 16px; font-weight: 700; margin-top: 10px; line-height: 1.4; }
+        
+        .nav-links-container { display: flex; flex-direction: column; gap: 4px; flex-grow: 1; }
+        .nav-link { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            color: var(--text-muted); 
+            text-decoration: none; 
+            padding: 12px 15px; 
+            border-radius: 8px; 
+            font-size: 14px; 
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .nav-link:hover { background: var(--nav-hover); color: var(--text-primary); }
+
+        /* منطقة المحتوى الرئيسي والتوب بار */
+        main { flex-grow: 1; display: flex; flex-direction: column; background: var(--bg-main); transition: background 0.3s; }
+        
+        .topbar { 
+            background: var(--topbar-bg); 
+            border-bottom: 1px solid var(--border-color); 
+            padding: 15px 30px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            transition: background 0.3s, border 0.3s;
+        }
+
+        .user-welcome-text { color: var(--text-muted); font-size: 13.5px; font-weight: 600; }
+        .user-welcome-text strong { color: var(--text-primary); }
+        .content-body-wrapper { padding: 30px; flex-grow: 1; overflow-y: auto; }
+
+        /* ربط كروت وتصاميم بقية الشاشات بالمتغيرات اللحظية لمنع التداخل */
+        .dash-card, .filter-card, .table-wrapper, .tl-card, .form-container, .form-container-timeline, .attach-item-row, .log-item-row { 
+            background-color: var(--bg-card) !important; 
+            border-color: var(--border-color) !important; 
+            transition: background 0.3s, border 0.3s;
+        }
+        .form-control, .form-control-filter, select, input, textarea { 
+            background-color: var(--input-bg) !important; 
+            color: var(--text-primary) !important; 
+            border-color: var(--border-color) !important; 
+        }
+        h2, h3, .dash-title, .form-header, td, th, label { color: var(--text-primary) !important; }
+
+        @media print {
+            aside, .topbar { display: none !important; }
+            body { background: white !important; color: black !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 📊 القائمة الجانبية الرسمية الموحدة للشركة -->
+    <aside>
+        <div class="brand-section">
+            <div style="font-size: 32px;">⚡</div>
+            <div class="brand-title">شركة شمال القاهرة<br>لتوزيع الكهرباء</div>
+        </div>
+        
+        <div class="nav-links-container">
+            <a href="{{ url_for('dashboard') }}" class="nav-link">📊 لوحة التحكم الإحصائية</a>
+            <a href="{{ url_for('letters') }}" class="nav-link">✉️ استعراض كافة المراسلات</a>
+            <a href="{{ url_for('add_letter') }}" class="nav-link">➕ قيد معاملة واردة</a>
+            
+            <!-- حوكمة الصلاحيات الحصرية المفتوحة بناءً على رتبة الموظف -->
+            {% if session.get('role') in ['admin', 'sub_admin'] %}
+                <div style="height: 1px; background: var(--border-color); margin: 10px 0;"></div>
+                <a href="{{ url_for('offices') }}" class="nav-link">🏢 الإدارة العامة للمكاتب</a>
+                {% if session.get('role') == 'admin' %}
+                    <a href="{{ url_for('users_list') }}" class="nav-link">👤 إدارة حسابات الموظفين</a>
+                {% endif %}
+            {% endif %}
+            
+            <div style="height: 1px; background: var(--border-color); margin: 10px 0;"></div>
+            <a href="{{ url_for('reports') }}" class="nav-link">🖨️ التقارير وطباعة الدفاتر</a>
+            <a href="{{ url_for('change_password') }}" class="nav-link">⚙️ تغيير كلمة المرور الشخصية</a>
+            <a href="{{ url_for('logout') }}" class="nav-link" style="color: #f87171;">🚪 تسجيل خروج آمن</a>
+        </div>
+    </aside>
+
+    <!-- 💻 منطقة العرض والعمل الجارية الموحدة للمنظومة -->
+    <main>
+        <div class="topbar">
+            <div class="user-welcome-text">
+                منظومة إدارة المراسلات والاتصالات الجارية الموحدة | 
+                👤 الحساب الحالي: <strong>{{ session.get('username', 'admin') }}</strong> 
+                (<span style="color: #facc15; font-weight: bold;">
+                    {% if session.get('role') == 'admin' %}مدير نظام
+                    {% elif session.get('role') == 'sub_admin' %}مدير قطاع
+                    {% else %}موظف مختص{% endif %}
+                </span>)
+            </div>
+
+            <!-- 🔥 زر التبديل الجمالي والمطور للتحكم بالوضعين الداكن والفاتح -->
+            <button id="themeToggleBtn" onclick="toggleThemeMode()" style="background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                <span id="themeToggleIcon">☀️</span> <span id="themeToggleText">الوضع الفاتح</span>
+            </button>
+        </div>
+
+        <div class="content-body-wrapper">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- ⚡ محرك التبديل بالجافا سكريبت والحفظ بالذاكرة المحلية لعام ٢٠٢٦ -->
+    <script>
+        const currentSavedTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : 'dark';
+        document.documentElement.setAttribute('data-theme', currentSavedTheme);
+        updateThemeToggleUI(currentSavedTheme);
+
+        function toggleThemeMode() {
+            const activeTheme = document.documentElement.getAttribute('data-theme');
+            let targetTheme = 'dark';
+            if (activeTheme === 'dark') {
+                targetTheme = 'light';
+            }
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            localStorage.setItem('theme', targetTheme);
+            updateThemeToggleUI(targetTheme);
+        }
+
+        function updateThemeToggleUI(theme) {
+            const icon = document.getElementById('themeToggleIcon');
+            const text = document.getElementById('themeToggleText');
+            if(icon && text) {
+                if (theme === 'light') {
+                    icon.innerText = '🌙';
+                    text.innerText = 'الوضع الداكن';
+                } else {
+                    icon.innerText = '☀️';
+                    text.innerText = 'الوضع الفاتح';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .offices-container { max-width: 1000px; margin: 0 auto; padding: 10px; }
+    .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .btn-add { background: #2563eb; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 13.5px; }
+    .table-wrapper { background: #1e293b; border: 1px solid #334155; border-radius: 14px; overflow-x: auto; }
+    .off-table { width: 100%; border-collapse: collapse; text-align: right; }
+    .off-table th { background: #0f172a; color: #94a3b8; font-size: 13.5px; padding: 16px 20px; border-bottom: 2px solid #334155; }
+    .off-table td { padding: 14px 20px; color: #e2e8f0; border-bottom: 1px solid #334155; font-size: 14px; }
+    .btn-edit { background: rgba(234, 179, 8, 0.1); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.2); padding: 5px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: bold; margin-left: 5px; }
+    .btn-delete { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); padding: 5px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: bold; }
+    .alert-sub-admin { background: rgba(56, 189, 248, 0.1); border-right: 4px solid #38bdf8; color: #cbd5e1; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; text-align: right; }
+</style>
+
+<div class="offices-container">
+    
+    <!-- عرض تنبيه مخصص لمدير القطاع يوضح نطاق حوكمته الحصرية -->
+    {% if session.get('role') == 'sub_admin' %}
+        <div class="alert-sub-admin">
+            🛡️ <strong>لوحة تحكم قطاعك الحالي:</strong> أنت تستعرض الآن القطاع الرئيسي والهندسات الفرعية التابعة لك فقط، وتم حجب باقي قطاعات الشركة التزاماً بالسرية المستندية المعتمدة.
+        </div>
+    {% endif %}
+
+    <div class="header-flex">
+        <h2 style="color: white; font-weight: 700; font-size: 20px;">🏢 الهيكل التنظيمي للقطاعات والإدارات العامة للشركة</h2>
+        {% if session.get('role') in ['admin', 'sub_admin'] %}
+            <a href="{{ url_for('add_office') }}" class="btn-add">➕ إضافة قطاع / هندسة تابعة</a>
+        {% endif %}
+    </div>
+
+    <div class="table-wrapper">
+        <table class="off-table">
+            <thead>
+                <tr>
+                    <th style="width: 100px;">مسلسل</th>
+                    <th>اسم القطاع / الإدارة العامة للشركة</th>
+                    <th>الكود الموحد للويب</th>
+                    <th style="text-align: center; width: 250px;">إجراءات وعمليات التحكم</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for office in offices %}
+                <tr>
+                    <td style="font-weight: bold; color: #64748b;">{{ office.id }}</td>
+                    <td style="font-weight: 600; color: white;">
+                        {{ office.name }}
+                        {% if office.parent_name %}
+                            <span style="display: block; font-size: 11.5px; color: #a78bfa; margin-top: 3px; font-weight: 500;">
+                                🏢 جهة فرعية تابعة لـ: {{ office.parent_name }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td><span style="font-family: monospace; color: #38bdf8;">{{ office.code }}</span></td>
+                    <td style="text-align: center;">
+                        {% if session.get('role') == 'admin' %}
+                            <a href="/edit_office/{{ office.id }}" class="btn-edit">✍️ تعديل</a>
+                            <a href="/delete_office/{{ office.id }}" class="btn-delete" onclick="return confirm('🚨 تنبيه أمني: حذف القطاع سيقوم بفصل الموظفين التابعين له وتصفير توجيههم بالمنظومة، هل أنت متأكد؟');">🗑️ حذف</a>
+                        {% else %}
+                            <!-- مظهر آمن يوضح حصر الصلاحية الفرعية لمدير القطاع الحالى -->
+                            <span style="color: #4ade80; background: rgba(34, 197, 94, 0.1); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                                ✓ متاح لإعادة التحويل والتوجيه
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

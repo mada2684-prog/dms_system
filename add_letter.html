@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* حاوية الصفحة والهيكل الرئيسي */
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+    
+    .form-header {
+        font-size: 20px;
+        font-weight: 700;
+        color: #ffffff;
+        border-bottom: 2px solid #334155;
+        padding-bottom: 12px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    @media (min-width: 768px) {
+        .form-grid { grid-template-columns: repeat(2, 1fr); }
+        .full-width { grid-column: span 2; }
+    }
+    
+    .form-label {
+        display: block;
+        color: #94a3b8;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .form-control {
+        width: 100%;
+        background: #0f172a;
+        border: 1px solid #475569;
+        border-radius: 8px;
+        padding: 12px;
+        color: #ffffff;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #facc15;
+        box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.15);
+    }
+
+    /* هندسة وتصميم مكون القائمة المنسدلة الذكية */
+    .dropdown-check-wrapper {
+        position: relative;
+        width: 100%;
+    }
+    
+    .dropdown-check-trigger {
+        background: #0f172a;
+        border: 1px solid #475569;
+        border-radius: 8px;
+        padding: 12px;
+        color: #ffffff;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        user-select: none;
+    }
+    
+    .dropdown-check-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #111827;
+        border: 1px solid #475569;
+        border-radius: 8px;
+        margin-top: 5px;
+        max-height: 280px;
+        overflow-y: auto;
+        z-index: 100;
+        display: none;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    
+    .dropdown-search-box {
+        padding: 8px;
+        position: sticky;
+        top: 0;
+        background: #111827;
+        border-bottom: 1px solid #334155;
+        z-index: 10;
+    }
+    
+    .dropdown-search-input {
+        width: 100%;
+        background: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 6px;
+        padding: 8px 12px;
+        color: #ffffff;
+        font-size: 13px;
+        outline: none;
+    }
+    
+    .dropdown-search-input:focus {
+        border-color: #facc15;
+    }
+    
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        color: #e2e8f0;
+        cursor: pointer;
+        user-select: none;
+        border-bottom: 1px solid #1e293b;
+    }
+    
+    .dropdown-item:last-child {
+        border-bottom: none;
+    }
+    
+    .dropdown-item:hover {
+        background: #1e293b;
+    }
+    
+    .dropdown-item input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #facc15;
+        cursor: pointer;
+    }
+    
+    .dropdown-item label {
+        cursor: pointer;
+        flex-grow: 1;
+        font-size: 13.5px;
+    }
+    
+    .file-input-wrapper {
+        background: #0f172a;
+        border: 1px solid #475569;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .file-input-wrapper input {
+        color: #94a3b8;
+    }
+    
+    .save-btn {
+        width: 100%;
+        background: linear-gradient(to right, #facc15, #eab308);
+        color: #0f172a;
+        border: none;
+        border-radius: 8px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 15px;
+    }
+    
+    .save-btn:hover {
+        background: linear-gradient(to right, #eab308, #ca8a04);
+        box-shadow: 0 5px 15px rgba(250, 204, 21, 0.2);
+    }
+</style>
+
+<div class="form-container">
+    <div class="form-header">
+        <span>📝</span> قيد مكاتبة واردة جديدة بقطاع الشركة
+    </div>
+    
+    <form method="POST" enctype="multipart/form-data" class="form-grid">
+        
+        <!-- حقل رقم الوارد الخارجي الصريح -->
+        <div>
+            <label class="form-label">رقم الوارد المدون على أصل الخطاب (اختياري - إذا وجد)</label>
+            <input type="text" name="external_incoming_number" placeholder="مثال: و / ٥٦٧ / ب (اتركه فارغاً إذا لم يوجد)" class="form-control" style="border-color: #facc15;">
+        </div>
+
+        <!-- حقل موضوع المكاتبة الرئيسي -->
+        <div>
+            <label class="form-label">موضوع المكاتبة الرئيسي</label>
+            <input type="text" name="subject" required placeholder="مثال: صيانة محولات طاقة شبرا الخيمة" class="form-control">
+        </div>
+        
+        <div class="full-width">
+            <label class="form-label">شرح ملخص المعاملة ومحتواها</label>
+            <textarea name="description" rows="3" placeholder="اكتب ملخص الإجراءات أو القرارات المطلوبة هنا..." class="form-control"></textarea>
+        </div>
+        
+        <div>
+            <label class="form-label">الجهة الخارجية الوارد منها الخطاب</label>
+            <input type="text" name="incoming_from" required placeholder="مثال: الشركة القابضة لكهرباء مصر" class="form-control">
+        </div>
+        <div class="form-group" style="text-align: right; margin-bottom: 20px;">
+            <label class="form-label" style="display: block; color: #94a3b8; font-size: 13px; font-weight: 600; margin-bottom: 8px;">
+                حالة وطبيعة الإجراء المطلوب للمكاتبة (يدوياً)
+            </label>
+            <input type="text" 
+                name="letter_action_type" 
+                placeholder="مثال: إفادة، تنبيه باللازم، تأشيرة فنية، للاطلاع..." 
+                class="form-control" 
+                style="width: 100%; background: #0f172a; border: 1px solid #475569; border-radius: 8px; padding: 12px; color: #ffffff; outline: none; text-align: right;" 
+                required>
+        </div>
+        
+        <!-- حقل المنسدلة الذكية المحمي والمطور كلياً بمكونات المتصفح المباشرة -->
+        <div>
+            <label class="form-label">توجيه وإرسال مشترك للمكاتب والقطاعات المعنية</label>
+            <div class="dropdown-check-wrapper" id="dropdownWrapper">
+                <div class="dropdown-check-trigger" onclick="var list=document.getElementById('officeDropdownList'); list.style.display=(list.style.display==='block')?'none':'block'; document.getElementById('dropdownSearch').focus(); event.stopPropagation();">
+                    <span id="dropdownSelectedText" style="color: #94a3b8;">اضغط لتحديد المكاتب الموجه إليها المعاملة...</span>
+                    <span>▼</span>
+                </div>
+                
+                <div class="dropdown-check-list" id="officeDropdownList">
+                    <!-- صندوق تصفية مدمج مباشر -->
+                    <div class="dropdown-search-box">
+                        <input type="text" id="dropdownSearch" onkeyup="var filter=this.value.toLowerCase().trim(); var items=document.getElementById('officeDropdownList').getElementsByClassName('dropdown-item'); for(var i=0; i<items.length; i++){ var label=items[i].getElementsByTagName('label')[0]; if(label){ var txt=label.textContent||label.innerText; items[i].style.display=(txt.toLowerCase().indexOf(filter)>-1)?'flex':'none'; } }" placeholder="ابحث عن قطاع أو إدارة فرعية محددة..." class="dropdown-search-input">
+                    </div>
+                    
+                    <!-- طباعة المكاتب المتاحة -->
+                    {% for office in offices %}
+                    <div class="dropdown-item">
+                        <input type="checkbox" name="to_offices" value="{{ office.id }}" id="office_{{ office.id }}" onchange="var cb=document.getElementsByName('to_offices'); var count=0; for(var i=0; i<cb.length; i++){ if(cb[i].checked) count++; } var txt=document.getElementById('dropdownSelectedText'); if(count>0){ txt.innerText='تم تحديد عدد ('+count+') جهة / قطاع للتحويل المشترك'; txt.style.color='#facc15'; }else{ txt.innerText='اضغط لتحديد المكاتب الموجه إليها المعاملة...'; txt.style.color='#94a3b8'; }">
+                        <label for="office_{{ office.id }}">🏢 {{ office.name }} ({{ office.code }})</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <label class="form-label">تاريخ الوارد المكتوب على المعاملة ورقياً</label>
+            <input type="date" name="incoming_date" required class="form-control">
+        </div>
+        
+        <div>
+            <label class="form-label">تاريخ الرد النهائي المطلوب (الحد الأقصى للرد)</label>
+            <input type="date" name="reply_date" class="form-control">
+        </div>
+        
+        <div class="full-width">
+            <label class="form-label">المرفقات والمستندات المسحوبة ضوئياً (صور / ملفات PDF)</label>
+            <div class="file-input-wrapper">
+                <input type="file" name="attachments" multiple>
+            </div>
+        </div>
+        
+        <div class="full-width">
+            <button type="submit" class="save-btn">حفظ المعاملة وتوليد رقم صادر إلكتروني ⚡</button>
+        </div>
+    </form>
+</div>
+
+<!-- إغلاق القائمة المنسدلة عند الضغط خارجها بأسلوب آمن تماماً وعام -->
+<script>
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest('#dropdownWrapper')) {
+            var dropdownList = document.getElementById("officeDropdownList");
+            if(dropdownList) dropdownList.style.display = "none";
+        }
+    });
+</script>
+{% endblock %}

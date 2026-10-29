@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .form-container { max-width: 600px; margin: 0 auto; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 30px; }
+    .form-header { font-size: 18px; font-weight: 700; color: #ffffff; border-bottom: 2px solid #334155; padding-bottom: 12px; margin-bottom: 24px; }
+    .form-label { display: block; color: #94a3b8; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+    .save-btn { width: 100%; background: linear-gradient(to right, #3b82f6, #1d4ed8); color: white; border: none; border-radius: 8px; padding: 14px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 15px; }
+    .dropdown-check-wrapper { position: relative; width: 100%; }
+    .dropdown-check-trigger { background: #0f172a; border: 1px solid #475569; border-radius: 8px; padding: 12px; color: #ffffff; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .dropdown-check-list { position: absolute; top: 100%; left: 0; right: 0; background: #111827; border: 1px solid #475569; border-radius: 8px; margin-top: 5px; max-height: 220px; overflow-y: auto; z-index: 100; display: none; }
+    .dropdown-search-box { padding: 8px; position: sticky; top: 0; background: #111827; border-bottom: 1px solid #334155; }
+    .dropdown-search-input { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 8px 12px; color: #ffffff; font-size: 13px; outline: none; }
+    .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #e2e8f0; cursor: pointer; border-bottom: 1px solid #1e293b; }
+    .dropdown-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: #3b82f6; }
+</style>
+
+<div class="form-container">
+    <div class="form-header">🔄 إعادة توجيه وتحويل مكاتبة جارية</div>
+    <div style="margin-bottom: 20px; color: #cbd5e1; font-size: 14px;">الموضوع الحالي: <strong style="color: #facc15;">{{ letter.subject }}</strong></div>
+    
+    <form method="POST">
+        <div>
+            <label class="form-label">اختر القطاعات والمكاتب الإضافية المراد إرسال نسخة لهم</label>
+            <div class="dropdown-check-wrapper" id="dropdownWrapper">
+                <div class="dropdown-check-trigger" onclick="var list=document.getElementById('officeDropdownList'); list.style.display=(list.style.display==='block')?'none':'block'; document.getElementById('dropdownSearch').focus(); event.stopPropagation();">
+                    <span id="dropdownSelectedText" style="color: #94a3b8;">اضغط لتحديد جهات تحويل جديدة...</span>
+                    <span>▼</span>
+                </div>
+                <div class="dropdown-check-list" id="officeDropdownList">
+                    <div class="dropdown-search-box">
+                        <input type="text" id="dropdownSearch" onkeyup="var filter=this.value.toLowerCase().trim(); var items=document.getElementById('officeDropdownList').getElementsByClassName('dropdown-item'); for(var i=0; i<items.length; i++){ var label=items[i].getElementsByTagName('label'); if(label){ var txt=label[0].textContent||label[0].innerText; items[i].style.display=(txt.toLowerCase().indexOf(filter)>-1)?'flex':'none'; } }" placeholder="ابحث عن قطاع محدد..." class="dropdown-search-input">
+                    </div>
+                    {% for office in offices %}
+                    <div class="dropdown-item">
+                        <input type="checkbox" name="to_offices" value="{{ office.id }}" id="office_{{ office.id }}" onchange="var cb=document.getElementsByName('to_offices'); var count=0; for(var i=0; i<cb.length; i++){ if(cb[i].checked) count++; } var txt=document.getElementById('dropdownSelectedText'); if(count>0){ txt.innerText='تم تحديد عدد ('+count+') جهة جديدة للتحويل'; txt.style.color='#3b82f6'; }else{ txt.innerText='اضغط لتحديد جهات تحويل جديدة...'; txt.style.color='#94a3b8'; }">
+                        <label for="office_{{ office.id }}">🏢 {{ office.name }} ({{ office.code }})</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="save-btn">تأكيد أمر إعادة التحويل وإصدار النسخ ⚡</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest('#dropdownWrapper')) {
+            var dropdownList = document.getElementById("officeDropdownList");
+            if(dropdownList) dropdownList.style.display = "none";
+        }
+    });
+</script>
+{% endblock %}

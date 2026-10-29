@@ -1,0 +1,12 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\cairo-scan]
+@="URL:Cairo Scanner Protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\cairo-scan\shell]
+
+[HKEY_CLASSES_ROOT\cairo-scan\shell\open]
+
+[HKEY_CLASSES_ROOT\cairo-scan\shell\open\command]
+@="\"python\" \"D:\\dms_system\\cairo_scanner.py\" \"%1\""

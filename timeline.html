@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .tl-container { max-width: 850px; margin: 0 auto; padding: 10px; }
+  .tl-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; margin-bottom: 25px; }
+  .tl-header-flex { display: flex; flex-direction: column; gap: 15px; }
+  @media (min-width: 768px) { .tl-header-flex { flex-direction: row; justify-content: space-between; align-items: center; } }
+  .tl-title-sub { color: #94a3b8; font-size: 12px; font-weight: 700; }
+  .tl-main-title { color: #ffffff; font-size: 20px; font-weight: 700; }
+  .tl-meta-text { color: #64748b; font-size: 13px; }
+  .tl-badge-deadline { color: #f87171; background: rgba(239, 68, 68, 0.1); padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; }
+  .search-attach-box { width: 100%; margin-bottom: 12px; }
+  .search-attach-input { width: 100%; background: #0f172a; border: 1px solid #475569; border-radius: 8px; padding: 12px 15px; color: #ffffff; font-size: 13px; }
+  .scrollable-attach-container { max-height: 250px; overflow-y: auto; padding: 10px; border: 1px solid #334155; border-radius: 8px; background: #0f172a; margin-bottom: 15px; }
+  .tl-attach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .attach-item-row { display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 10px 14px; border-radius: 8px; border: 1px solid #334155; }
+  .tl-btn-file { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: none; color: #38bdf8; font-size: 13.5px; font-weight: 700; text-decoration: none; }
+  .tl-btn-delete-icon { background: rgba(220, 38, 38, 0.1); color: #ef4444; border: 1px solid rgba(220, 38, 38, 0.2); width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+  .master-preview-card { background: #1e293b; border: 1px solid #475569; border-radius: 12px; padding: 24px; }
+  .master-preview-title-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 20px; }
+  .master-scroll-zone { max-height: 550px; overflow-y: auto; padding: 15px; background: #0f172a; border-radius: 8px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 25px; align-items: center; }
+  .preview-block-item { width: 100%; border-bottom: 1px dashed #334155; padding-bottom: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; position: relative; }
+  .preview-item-label { color: #94a3b8; font-size: 13px; font-weight: 600; background: #1e293b; padding: 4px 12px; border-radius: 6px; }
+  .preview-rendered-img { max-width: 100%; height: auto; max-height: 500px; border-radius: 6px; }
+  .preview-iframe-pdf { width: 100%; height: 400px; border-radius: 6px; }
+  .btn-bulk-print { background: linear-gradient(to right, #22c55e, #16a34a); color: #0f172a; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; }
+  .tl-inline-form { background: #0f172a; border: 1px dashed #475569; border-radius: 10px; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+  @media (min-width: 640px) { .tl-inline-form { flex-direction: row; align-items: center; justify-content: space-between; } }
+  .tl-form-btn-submit { background: linear-gradient(to right, #22c55e, #16a34a); color: #ffffff; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 700; border: none; }
+  .tl-tree-line { position: relative; border-right: 2px solid #334155; margin-right: 15px; padding-bottom: 10px; }
+  .tl-node-block { position: relative; padding-right: 35px; margin-bottom: 30px; }
+  .tl-circle-icon { position: absolute; right: -12px; top: 2px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; background: #334155; color: #94a3b8; border: 4px solid #1e293b; }
+  .tl-body-card { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .tl-card-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; }
+  .tl-text-bold { font-size: 14px; font-weight: 700; color: #ffffff; }
+  .tl-text-time { font-size: 11px; color: #64748b; background: #1e293b; padding: 3px 8px; border-radius: 5px; }
+  .tl-path-box { font-size: 13px; color: #94a3b8; display: flex; gap: 8px; }
+  .tl-tag-office { color: #38bdf8; font-weight: 600; background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 5px; }
+  .tl-back-btn-wrapper { margin-top: 25px; }
+  .tl-btn-back { display: inline-flex; align-items: center; gap: 8px; background: #334155; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; }
+  .reply-display-box { background: rgba(124, 58, 237, 0.08); border-right: 3px solid #7c3aed; padding: 12px 15px; border-radius: 6px; color: #e2e8f0; font-size: 13px; }
+  
+  /* 🖨️ هندسة طباعة البند المائي الأمني - مقسمة لأسطر قصيرة لمنع الخروج */
+  @media print {
+    body { background: white !important; color: black !important; }
+    aside, header, .topbar, .tl-card, .master-preview-title-bar,
+    .tl-inline-form, .tl-back-btn-wrapper, .search-attach-box 
+    { display: none !important; }
+    .master-preview-card, .master-scroll-zone 
+    { background: white !important; border: none !important; 
+      max-height: none !important; overflow: visible !important; }
+    .preview-block-item { page-break-after: always !important; 
+      border: none !important; position: relative !important; }
+    .preview-block-item::after {
+      content: "🔒 معاينة للمستخدم: {{ session.get('user_id') }} | تاريخ: 2026-10-24" !important;
+      position: absolute !important; bottom: -15px !important; right: 10px !important;
+      font-size: 12px !important; color: #64748b !important; font-weight: bold !important;
+    }
+  }
+</style>
+
+<div class="tl-container">
+    <div class="tl-card">
+        <div class="tl-header-flex">
+            <div>
+                <span class="tl-title-sub">مسار المعاملة صادر رقم #{{ letter.id }}</span>
+                <h2 class="tl-main-title">الموضوع: {{ letter.subject }}</h2>
+                <p class="tl-meta-text">
+                    رقم الوارد: <strong style="color:#facc15;">{{ letter.external_incoming_number or 'بدون رقم' }}</strong> | 
+                    المنشئ: <strong style="color:#38bdf8;">👤 {{ letter.creator_name or 'نظام الإدخال' }}</strong>
+                </p>
+            </div>
+            <div>
+                <span class="tl-badge-deadline">📅 الأقصى للرد: {{ letter.reply_date or 'غير محدد' }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="tl-card">
+        <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 12px; border-bottom: 1px solid #334155; padding-bottom: 8px;">📁 المستندات والمرفقات الرسمية للمعاملة</div>
+        <div class="search-attach-box">
+            <input type="text" id="attachSearchInput" onkeyup="filterAttachmentItems()" placeholder="🔍 ابحث برقم المستند أو المرفق المستهدف للوصول السريع..." class="search-attach-input">
+        </div>
+        <div class="scrollable-attach-container">
+            <div class="tl-attach-grid" id="attachmentsGridBlock">
+                {% for attach in attachments %}
+                    <div class="attach-item-row" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            
+                            <!-- زر المعاينة المستقر -->
+                            <a href="/{{ attach.file_path }}" target="_blank" class="tl-btn-file">
+                                📎 مستند رسمي مرفق رقم {{ loop.index }}
+                            </a>
+                            
+                            <!-- 🔒 فرز ظهور زر الحذف: يظهر فقط إذا كان المستخدم أدمن أو هو رافع الملف بنفسه -->
+                            {% if session.get('role') == 'admin' or attach.uploaded_by == session.get('username') %}
+                                <a href="/delete_attachment/{{ attach.id }}" 
+                                class="tl-btn-delete-icon" 
+                                title="حذف هذا المستند نهائياً" 
+                                onclick="return confirm('🚨 تأكيد الحذف: هل أنت متأكد من مسح هذا المرفق الفردي نهائياً من السيرفر؟');">
+                                    🗑️
+                                </a>
+                            {% endif %}
+                            
+                        </div>
+                        <div style="font-size: 11px; color: #94a3b8; font-weight: 600; padding-right: 4px; margin-top: 2px;">
+                            👤 مسجل الملف: <span style="color: #facc15;">{{ attach.uploaded_by or 'نظام الإدخال' }}</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <span style="color: #64748b; font-size: 12.5px; display: block; padding: 15px; text-align: center; width: 100%;">🚫 لا توجد مستندات مرفقة بهذه المكاتبة بعد.</span>
+                {% endfor %}
+            </div>
+        </div>
+
+
+        <form action="{{ url_for('add_attachment', letter_id=letter.id) }}" method="POST" enctype="multipart/form-data" class="tl-inline-form">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <span style="color: #94a3b8; font-size: 12.5px; font-weight: 600;">🔄 إضافة مرفق تكميلي جديد للمعاملة الجارية:</span>
+                <input type="file" name="new_attachments" multiple required style="color: #64748b; font-size: 13px;">
+            </div>
+            <button type="submit" class="tl-form-btn-submit">➕ رفع وتحديث الملفات</button>
+        </form>
+    </div>
+    <div class="master-preview-card">
+        <div class="master-preview-title-bar">
+            <div style="font-size: 14px; font-weight: 700; color: #ffffff;">🖥️ شاشة العرض والطباعة السريعة لملفات المعاملة (عرض متتالي مجمع)</div>
+            {% if attachments %}
+                <button type="button" onclick="printAllImagesBulk()" class="btn-bulk-print">🖨️ طباعة كافة أوراق المرفقات دفعة واحدة</button>
+            {% endif %}
+        </div>
+        <div class="master-scroll-zone" id="printCollectionZone">
+            {% for attach in attachments %}
+                <div class="preview-block-item">
+                    <span class="preview-item-label">📄 مستند رسمي معروض رقم {{ loop.index }}</span>
+                    {% set ext = attach.file_path.split('.')[-1].lower() %}
+                    {% if ext == 'pdf' %}
+                        <iframe src="/{{ attach.file_path }}" class="preview-iframe-pdf"></iframe>
+                    {% elif ext in ['jpg', 'jpeg', 'png', 'gif', 'webp'] %}
+                        <img src="/{{ attach.file_path }}" class="preview-rendered-img" alt="مرفق المعاملة" />
+                    {% else %}
+                        <div style="color:#64748b; font-size:13px; text-align:center; padding:15px;">
+                            📦 ملف أوفيس مخصص ({{ ext.upper() }}) - متاح للتحميل والقراءة عبر الرابط الشبكي المباشر بالأعلى.
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div style="color:#64748b; font-size:13px; padding:30px; text-align:center;">📭 لا توجد ملفات أو صور مسحوبة ضوئياً لعرضها حالياً.</div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="tl-card" style="padding: 35px 30px;">
+        <div style="font-size: 15px; font-weight: 700; color: #ffffff; margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 15px;">📍 التحركات التاريخية وسجل التوجيه الإلكتروني</div>
+        <div class="tl-tree-line">
+            {% for log in logs %}
+            <div class="tl-node-block">
+                <div class="tl-circle-icon {% if log.action == 'receive' %}tl-icon-green{% elif log.action == 'reply_close' %}tl-icon-purple{% elif log.action == 'delete_attachment' %}tl-icon-gray{% else %}tl-icon-blue{% endif %}">
+                    {% if log.action == 'receive' %}✓{% elif log.action == 'reply_close' %}🔒{% elif log.action == 'delete_attachment' %}📎{% else %}←{% endif %}
+                </div>
+                <div class="tl-body-card">
+                    <div class="tl-card-row">
+                        <span class="tl-text-bold">
+                            {% if log.action == 'receive' %}
+                                📥 تم استلام المعاملة وتأكيد العمل بها بالقطاع
+                            {% elif log.action == 'reply_close' %}
+                                🔒 تم صياغة الرد الرسمي وإغلاق الدورة الإدارية نهائياً
+                            {% elif log.action == 'add_attachment' %}
+                                📎 تم إدراج ورفع مستند ورقي تكميلي جديد بملف المعاملة
+                            {% elif log.action == 'delete_attachment' %}
+                                🗑️ تم إعدام وحذف مستند مرفق تالف من ملف المعاملة الإلكتروني
+                            {% else %}
+                                📤 جاري تصدير وتوجيه المعاملة إلكترونياً
+                            {% endif %}
+                        </span>
+                        <span class="tl-text-time">⏱️ {{ log.created_at }}</span>
+                    </div>
+                    
+                    <div style="font-size: 12px; color: #facc15; font-weight: 600; margin-top: -5px;">
+                        👤 المسؤول عن هذا الإجراء: {{ log.log_user_name or 'نظام الإدخال' }}
+                    </div>
+
+                    {% if log.action != 'add_attachment' and log.action != 'reply_close' and log.action != 'delete_attachment' %}
+                    <div class="tl-path-box">
+                        {% if log.from_office_name %}من مكتب: <span class="tl-tag-office">{{ log.from_office_name }}</span>{% else %}من: <span class="tl-tag-office">قيد الوارد الأولي</span>{% endif %}
+                        <span>⬅️</span>
+                        {% if log.to_office_name %}التوجيه الحالي إلى: <span class="tl-tag-office" style="color: #4ade80; background: rgba(34, 197, 94, 0.1);">{{ log.to_office_name }}</span>{% else %}<span class="tl-tag-office">غير محدد</span>{% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if log.action == 'reply_close' and log.from_office_name %}
+                        <div class="tl-path-box">القطاع المُرْسل للرد: <span class="tl-tag-office" style="color: #a78bfa; background: rgba(124, 58, 237, 0.1);">🏢 {{ log.from_office_name }}</span></div>
+                        <div class="reply-display-box">
+                            <strong>📝 منطوق ومحتوى الرد الرسمي الصادر ومستنداته:</strong><br>
+                            {{ log.reply_content | safe }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="tl-back-btn-wrapper">
+        <a href="{{ url_for('letters') }}" class="tl-btn-back">↩️ العودة لقائمة المراسلات العامة</a>
+    </div>
+</div>
+
+<script>
+function filterAttachmentItems() {
+    var input = document.getElementById("attachSearchInput");
+    var filter = input.value.toLowerCase().trim();
+    var grid = document.getElementById("attachmentsGridBlock");
+    var items = grid.getElementsByClassName("attach-item-row");
+    for (var i = 0; i < items.length; i++) {
+        var textContent = items[i].textContent || items[i].innerText;
+        if (textContent.toLowerCase().indexOf(filter) > -1) { items[i].style.display = "flex"; } else { items[i].style.display = "none"; }
+    }
+}
+function printAllImagesBulk() {
+    var images = document.querySelectorAll(".preview-rendered-img");
+    if (images.length === 0) { 
+        window.print(); 
+        return; 
+    }
+    
+    // فتح نافذة طباعة خارجية مستقلة وتنسيق الهيكل الإداري للشركة
+    var printWindow = window.open('', '_blank');
+    printWindow.document.write('<html><head><title>طباعة مسح مجمع للمرفقات</title>');
+    
+    // تصميم هندسي مرن يضع العلامة المائية باسم الموظف بأسفل كل ورقة مطبوعة تلقائياً
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { margin: 0; padding: 0; text-align: center; font-family: sans-serif; }');
+    printWindow.document.write('.print-item-wrapper { position: relative; page-break-after: always; padding-bottom: 40px; margin-bottom: 20px; }');
+    printWindow.document.write('.print-item-wrapper img { max-width: 100%; height: auto; display: block; margin: 0 auto; }');
+    printWindow.document.write('.print-watermark { position: absolute; bottom: 5px; right: 20px; font-size: 13px; color: #64748b; font-weight: bold; direction: rtl; }');
+    printWindow.document.write('</style>');
+    printWindow.document.write('</head><body>');
+    
+    // حلقة تكرارية لحقن الصور المرفوعة متبوعة بالعلامة المائية المخصصة للموظف الحالي
+    images.forEach(function(img, index) {
+        var docNum = index + 1;
+        printWindow.document.write('<div class="print-item-wrapper">');
+        printWindow.document.write('<img src="' + img.src + '" />');
+        // السطر السحري لحقن اسم كود الموظف الحالي المسجل ببيانات الجلسة (session) والتاريخ الفعلي
+        // تأكد أن السطر مكتوب هكذا تماماً بأسفل ملف timeline.html
+        printWindow.document.write('<div class="print-watermark">🔒 مستند رسمي معاين ومطبوع بواسطة الحساب: {{ session.get("username", "admin") }} | تاريخ الطباعة: 2026-10-24</div>');
+        printWindow.document.write('</div>');
+    });
+    
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    
+    // إطلاق أمر الطباعة الفورية فور اكتمال تحميل الأوراق بسلاسة
+    printWindow.onload = function() { 
+        printWindow.print(); 
+        printWindow.close(); 
+    };
+}
+
+</script>
+{% endblock %}

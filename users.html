@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .users-container { max-width: 1100px; margin: 0 auto; padding: 10px; }
+    .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .btn-add { background: #2563eb; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 13.5px; }
+    .table-wrapper { background: #1e293b; border: 1px solid #334155; border-radius: 14px; overflow-x: auto; }
+    .user-table { width: 100%; border-collapse: collapse; text-align: right; }
+    .user-table th { background: #0f172a; color: #94a3b8; font-size: 13.5px; padding: 16px 20px; border-bottom: 2px solid #334155; }
+    .user-table td { padding: 14px 20px; color: #e2e8f0; border-bottom: 1px solid #334155; font-size: 14px; vertical-align: middle; }
+    .role-badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; display: inline-block; }
+    .role-admin { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+    .role-sub-admin { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); }
+    .role-user { background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
+    .action-btn-group { display: flex; gap: 6px; justify-content: center; }
+    .btn-action-link { text-decoration: none; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+</style>
+
+<div class="users-container">
+    <div class="header-flex">
+        <h2 style="color: white; font-weight: 700; font-size: 20px;">👥 إدارة حسابات الموظفين وصلاحيات القطاعات</h2>
+        <a href="{{ url_for('add_user') }}" class="btn-add">➕ تسجيل موظف جديد</a>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">مسلسل</th>
+                    <th>اسم المستخدم (كود الدخول)</th>
+                    <th>القطاع / الفرع الإداري التابع له</th>
+                    <th>الرتبة الممنوحة</th>
+                    <th style="text-align: center; width: 300px;">إجراءات الإشراف والتحكم</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td style="font-weight: bold; color: #64748b;">{{ user.id }}</td>
+                    <td style="font-weight: 700; color: white;">{{ user.username }}</td>
+                    <td><strong style="color: #cbd5e1;">{{ user.office_name or '👑 إدارة السيرفر العليا' }}</strong></td>
+                    <td>
+                        {% if user.role == 'admin' %}
+                            <span class="role-badge role-admin">🛠️ أدمن كامل الصلاحيات</span>
+                        {% elif user.role == 'sub_admin' %}
+                            <span class="role-badge role-sub-admin">🛡️ مدير قطاع</span>
+                        {% else %}
+                            <span class="role-badge role-user">💻 موظف عادي</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-btn-group">
+                            <a href="/edit_user/{{ user.id }}" class="btn-action-link" style="background: rgba(234, 179, 8, 0.1); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.2);">✍️ تعديل بيانات</a>
+                            <a href="{{ url_for('reset_password', user_id=user.id) }}" class="btn-action-link" style="background: rgba(37, 99, 235, 0.1); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.2);">🔑 تغيير السر</a>
+                            {% if user.username != 'admin' %}
+                                <a href="/delete_user/{{ user.id }}" class="btn-action-link" style="background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2);" onclick="return confirm('🚨 تحذير أمني: هل أنت متأكد تماماً من حذف حساب هذا الموظف كلياً وحظر دخوله للمنظومة؟');">🗑️ حذف</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

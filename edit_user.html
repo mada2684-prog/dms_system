@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .form-container { max-width: 500px; margin: 40px auto; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    .form-header { font-size: 18px; font-weight: 700; color: #ffffff; border-bottom: 2px solid #334155; padding-bottom: 12px; margin-bottom: 24px; text-align: right; }
+    .form-group { margin-bottom: 20px; text-align: right; }
+    .form-label { display: block; color: #94a3b8; font-size: 13px; margin-bottom: 8px; font-weight: 600; }
+    .form-control { width: 100%; background: #0f172a; border: 1px solid #475569; border-radius: 8px; padding: 12px; color: #ffffff; outline: none; transition: border-color 0.2s; text-align: right; }
+    .form-control:focus { border-color: #2563eb; }
+    .submit-btn { width: 100%; background: #2563eb; color: white; border: none; border-radius: 8px; padding: 12px; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .alert-error { background: rgba(239, 68, 68, 0.1); border-right: 4px solid #ef4444; color: #f87171; padding: 12px; border-radius: 6px; font-size: 13px; margin-bottom: 15px; text-align: right; }
+</style>
+
+<div class="form-container">
+    <div class="form-header">✍️ تعديل بيانات وصلاحيات حساب الموظف</div>
+    
+    {% if error %}
+        <div class="alert-error">⚠️ {{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+        <div class="form-group">
+            <label class="form-label">اسم المستخدم (كود سجل الدخول الحركي)</label>
+            <input type="text" name="username" value="{{ user.username }}" required class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">القطاع / الفرع الإداري المنسوب له الموظف</label>
+            <select name="office_id" class="form-control" style="direction: rtl;">
+                <option value="">-- مكتب رئيسي عام مستقل (أدمن) --</option>
+                {% for off in offices %}
+                    <option value="{{ off.id }}" {% if user.office_id == off.id %}selected{% endif %}>🏢 {{ off.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">درجة الصلاحية الممنوحة المحدثة على المنظومة</label>
+            <select name="role" class="form-control" style="direction: rtl;" required>
+                <option value="user" {% if user.role == 'user' %}selected{% endif %}>💻 موظف قطاع عادي (قيد واستلام فقط)</option>
+                <option value="sub_admin" {% if user.role == 'sub_admin' %}selected{% endif %}>🛡️ مدير قطاع / فرع (له صلاحية قيد المكاتب التابعة)</option>
+                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>🛠️ مدير نظام كامل الصلاحيات (Admin)</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="submit-btn">💾 حفظ التعديلات وتحديث ملف الموظف ⚡</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends 'base.html' %} 
+{% block content %}
+
+<style>
+    .reports-container { max-width: 1200px; margin: 0 auto; padding: 10px; }
+    .filter-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+    .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; align-items: flex-end; }
+    .form-group-filter { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+    .form-label-filter { color: #94a3b8; font-size: 12.5px; font-weight: 600; }
+    .form-control-filter { width: 100%; background: #0f172a; border: 1px solid #475569; border-radius: 8px; padding: 10px; color: #ffffff; outline: none; font-size: 13px; text-align: right; }
+    .btn-filter-submit { background: #2563eb; color: white; border: none; padding: 11px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px; justify-content: center; }
+    .btn-print-book { background: #16a34a; color: white; border: none; padding: 11px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px; justify-content: center; }
+    .table-wrapper { background: #1e293b; border: 1px solid #334155; border-radius: 14px; overflow-x: auto; }
+    .report-table { width: 100%; border-collapse: collapse; text-align: center; }
+    .report-table th { background: #0f172a; color: #94a3b8; font-size: 13px; padding: 16px 10px; border-bottom: 2px solid #334155; text-align: center; white-space: nowrap; }
+    .report-table td { padding: 14px 10px; color: #e2e8f0; border-bottom: 1px solid #334155; font-size: 13.5px; text-align: center; }
+    .print-official-header { display: none; }
+
+    @media print {
+        @page { size: A4 landscape; margin: 10mm; }
+        body { background: white !important; color: black !important; direction: rtl !important; font-size: 11px !important; }
+        .print-official-header { display: flex !important; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px; border-bottom: 3px double #000000; padding-bottom: 10px; }
+        .logo-text-right { text-align: right; font-weight: bold; color: black; line-height: 1.5; font-size: 12px; }
+        .logo-img-center { height: 65px; object-fit: contain; }
+        aside, header, .topbar, .filter-card, .btn-filter-submit, .btn-print-book, h2, .reports-container h2 { display: none !important; }
+        .reports-container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+        .table-wrapper { border: none !important; background: white !important; overflow: visible !important; width: 100% !important; }
+        .report-table { width: 100% !important; table-layout: fixed !important; border: 1px solid #000000 !important; text-align: center; }
+        .report-table th { background: #f1f5f9 !important; color: black !important; border: 1px solid #000000 !important; padding: 8px 4px !important; font-size: 11px !important; text-align: center; white-space: normal !important; }
+        .report-table td { color: black !important; border: 1px solid #000000 !important; padding: 8px 4px !important; font-size: 11px !important; text-align: center; word-wrap: break-word !important; }
+    }
+</style>
+
+<div class="reports-container">
+    <div class="print-official-header">
+        <div class="logo-text-right">
+            وزارة الكهرباء والطاقة المتجددة<br>
+            الشركة القابضة لكهرباء مصر<br>
+            شركة شمال القاهرة لتوزيع الكهرباء
+        </div>
+        <img src="/static/logo.png" class="logo-img-center" alt="شعار شركة شمال القاهرة لتوزيع الكهرباء">
+        
+        </div>
+    </div>
+
+    <h2 style="color: white; font-weight: 700; font-size: 20px; margin-bottom: 20px;">🖨️ مركز استخراج التقارير وطباعتها </h2>
+
+    <div class="filter-card">
+        <form method="GET" action="{{ url_for('reports') }}">
+            <div class="filter-grid">
+                <div class="form-group-filter">
+                    <label class="form-label-filter">تصفية بحالة المعاملة</label>
+                    <select name="status" class="form-control-filter" style="direction: rtl;">
+                        <option value="">-- جميع الحالات الإدارية --</option>
+                        <option value="new" {% if status_filter == 'new' %}selected{% endif %}>📩 جديدة</option>
+                        <option value="in_transfer" {% if status_filter == 'in_transfer' %}selected{% endif %}>🔄 قيد التحويل</option>
+                        <option value="received" {% if status_filter == 'received' %}selected{% endif %}>✅ تم الاستلام</option>
+                        <option value="replied_closed" {% if status_filter == 'replied_closed' %}selected{% endif %}>🔒 تم الرد والإغلاق</option>
+                    </select>
+                </div>
+
+                <div class="form-group-filter">
+                    <label class="form-label-filter">الجهة المحول إليها المعاملة</label>
+                    <select name="office" class="form-control-filter" style="direction: rtl;">
+                        <option value="">-- جميع القطاعات والمكاتب --</option>
+                        {% for off in offices %}
+                            <option value="{{ off.name }}" {% if office_filter == off.name %}selected{% endif %}>🏢 {{ off.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group-filter">
+                    <label class="form-label-filter">الجهة الخارجية الوارد منها الخطاب</label>
+                    <input type="text" name="incoming_from" value="{{ request.args.get('incoming_from', '') }}" placeholder="مثال: شركة السويدي، حي شبرا..." class="form-control-filter">
+                </div>
+
+                <div class="form-group-filter">
+                    <label class="form-label-filter">البحث بالإجراء التوجيهي (يدوياً)</label>
+                    <input type="text" name="action_type" value="{{ action_filter }}" placeholder="مثال: إفادة، تنبيه باللازم..." class="form-control-filter">
+                </div>
+
+                <div class="form-group-filter">
+                    <label class="form-label-filter">من تاريخ التحويل</label>
+                    <input type="date" name="from_date" value="{{ from_date }}" class="form-control-filter" style="direction: ltr;">
+                </div>
+
+                <div class="form-group-filter">
+                    <label class="form-label-filter">إلى تاريخ التحويل</label>
+                    <input type="date" name="to_date" value="{{ to_date }}" class="form-control-filter" style="direction: ltr;">
+                </div>
+
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <button type="submit" class="btn-filter-submit">🔍 تطبيق التصفية</button>
+                    <button type="button" onclick="window.print()" class="btn-print-book">🖨️ طباعة الدفتر</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th style="width: 55px; text-align: center;">الصادر</th>
+                    <th style="width: 90px; text-align: center;">الوارد الخارجي</th>
+                    <th style="width: 180px; text-align: center;">موضوع المكاتبة الرئيسي</th>
+                    <th style="width: 110px; text-align: center;">الجهة المرسِلة الخارجية</th>
+                    <!-- 🔥 استبدال الترويسة رسمياً لتصبح تاريخ التحويل بالجدول الموحد -->
+                    <th style="width: 95px; text-align: center;">تاريخ التحويل</th>
+                    <th style="width: 100px; text-align: center;">الإجراء التوجيهي</th>
+                    <th style="width: 150px; text-align: center;">المكتب الحالي المعني</th>
+                 
+                </tr>
+            </thead>
+            <tbody>
+                {% for letter in letters %}
+                <tr>
+                    <td style="font-weight: bold; color: #64748b;">{{ letter.id | arabic_numbers }}</td>
+                    <td><span style="font-family: monospace; font-weight: 600;">{{ letter.external_incoming_number | arabic_numbers }}</span></td>
+                    <td style="font-weight: 600; color: white;">{{ letter.subject }}</td>
+                    <td style="font-weight: 600; color: #38bdf8;">{{ letter.incoming_from or 'غير محدد' }}</td>
+                    
+                    <!-- 🔥 طباعة تاريخ التحويل بالصيغة المحدثة والتعريب الشامل للخط (يوم/شهر/عام) -->
+                    <td style="color: #4ade80; font-weight: bold;">
+                        <span>{{ letter.formatted_transfer_date | arabic_numbers }}</span>
+                    </td>
+                    
+                    <td><span style="color: #facc15; font-weight: 700;">📌 {{ (letter.letter_action_type or 'غير محدد') | arabic_numbers }}</span></td>
+                    <td>
+                        <span style="font-size: 13px; color: #8195ad; font-weight: 600;">
+                            {{ letter.clean_current_office or 'غير محدد' }}
+                        </span>
+                    </td>                           
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

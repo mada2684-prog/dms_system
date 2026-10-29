@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .form-container { max-width: 600px; margin: 0 auto; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 30px; }
+    .form-header { font-size: 19px; font-weight: 700; color: #ffffff; border-bottom: 2px solid #334155; padding-bottom: 12px; margin-bottom: 24px; }
+    .form-label { display: block; color: #94a3b8; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+    .form-control { width: 100%; background: #0f172a; border: 1px solid #475569; border-radius: 8px; padding: 12px; color: #ffffff; outline: none; }
+    .form-control:focus { border-color: #7c3aed; }
+    .save-btn { width: 100%; background: linear-gradient(to right, #7c3aed, #6d28d9); color: white; border: none; border-radius: 8px; padding: 14px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 15px; }
+</style>
+
+<div class="form-container">
+    <div class="form-header">✍️ صياغة الرد الرسمي وإغلاق دورة المعاملة</div>
+    <div style="margin-bottom: 20px; color: #cbd5e1; font-size: 14px;">الموضوع الرئيسي: <strong style="color: #ffffff;">{{ letter.subject }}</strong></div>
+    
+    <form method="POST" enctype="multipart/form-data">
+        <div style="margin-bottom: 20px;">
+            <label class="form-label">شرح ملخص الإجراءات القانونية أو الفنية التي تمت (توضيح الرد)</label>
+            <textarea name="reply_note" rows="4" required placeholder="مثال: تم مراجعة صيانة المحول وإرجاع الخطاب برقم صادر داخلي رقم ش ق / ٥٥..." class="form-control"></textarea>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label class="form-label">إرفاق صورة أو نسخة من خطاب الرد الرسمي المرسل (اختياري)</label>
+            <div style="background: #0f172a; border: 1px solid #475569; border-radius: 8px; padding: 15px; text-align: center;">
+                <input type="file" name="reply_attachments" multiple style="color: #94a3b8;">
+            </div>
+        </div>
+        
+        <button type="submit" class="save-btn">تأكيد إرسال الرد وإغلاق المكاتبة نهائياً 🔒</button>
+    </form>
+</div>
+{% endblock %}

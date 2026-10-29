@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل مكتب{% endblock %}
+
+{% block page_title %}✏ تعديل بيانات المكتب{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-md-6">
+
+        <div class="card shadow-sm p-4">
+
+            <h5 class="mb-4 text-center">تعديل المكتب</h5>
+
+            <form method="POST">
+
+                <!-- اسم المكتب -->
+                <div class="mb-3">
+                    <label class="form-label">اسم المكتب</label>
+                    <input type="text"
+                           name="name"
+                           class="form-control"
+                           value="{{ office[1] }}"
+                           required>
+                </div>
+
+                <!-- كود المكتب -->
+                <div class="mb-3">
+                    <label class="form-label">كود المكتب</label>
+                    <input type="text"
+                           name="code"
+                           class="form-control"
+                           value="{{ office[2] }}"
+                           required>
+                </div>
+
+                <!-- أزرار -->
+                <div class="d-flex justify-content-between mt-4">
+
+                    <a href="/offices" class="btn btn-secondary">
+                        ⬅ رجوع
+                    </a>
+
+                    <button type="submit" class="btn btn-success">
+                        💾 حفظ التعديلات
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
